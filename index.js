@@ -6,7 +6,7 @@ const helmet = require('helmet')
 const compression = require('compression')
 const rateLimit = require('express-rate-limit')
 const { validationResult, check } = require('express-validator')
-
+ 
 const app = express()
 
 app.use(bodyParser.json())
@@ -29,7 +29,7 @@ app.use(limiter)
 const getBooks = (request, response) => {
     pool.query('SELECT * FROM books', (error, results) => {
         if (error) {
-            throw error
+            throw error;
         }
         response.status(200).json(results.rows)
     })
@@ -52,7 +52,7 @@ app.post(
     [
         check('author')
             .not()
-            .isEmpty().withMessage('author cannot be empty') 
+            .isEmpty().withMessage('author cannot be empty')
             .trim()
             .isLength({ min: 5, max: 255 }).withMessage('author cannot be smaller that 4'),
         check('title')
@@ -82,5 +82,6 @@ app.post(
 
 // Start server
 app.listen(process.env.PORT || 3002, () => {
-    console.log(`Server listening`)
+    console.log(`Server listening`);
+    if (!isProduction) console.log('open: http://localhost:3002');
 })
