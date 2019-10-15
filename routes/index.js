@@ -1,41 +1,16 @@
-const { validationResult, check } = require('express-validator')
-const { pool } = require('./../config')
+const { check } = require('express-validator')
 const rateLimit = require('express-rate-limit')
 const express = require('express')
 const router = express.Router();
+const BooksController = require('./../controllers/books')
 
-const getBooks = (request, response) => {
-    pool.query('SELECT * FROM books', (error, results) => {
-        if (error) {
-            throw error;
-        }
-        response.status(200).json(results.rows)
-    })
-}
-
-router.get('/books', getBooks);
+const booksController = new BooksController();
+router.get('/books', booksController.getBooks);
 
 const postLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 10
 });
-
-const addBook = (request, response) => {
-    const errors = validationResult(request)
-
-    if (!errors.isEmpty()) {
-        return response.status(422).json({ errors: errors.array() })
-    }
-
-    const { author, title } = request.body
-
-    pool.query('INSERT INTO books (author, title) VALUES ($1, $2)', [author, title], error => {
-        if (error) {
-            throw error;
-        }
-        response.status(201).json({ status: 'success', message: 'Book added.' })
-    })
-};
 
 router.post(
     '/books',
@@ -52,7 +27,7 @@ router.post(
             .trim(),
     ],
     postLimiter,
-    addBook
+    booksController.addBook
 );
 
-module.exports = router 
+module.exports = router
